@@ -52,6 +52,8 @@ parser.add_argument('--fl-error', type=int, default=-1, metavar='N',
                     help='float length in bits for backward error; -1 if full precision.')
 parser.add_argument('--wl-rand', type=int, default=-1, metavar='N',
                     help='word length in bits for rand number; -1 if full precision.')
+parser.add_argument('--lr', type=int, default=-1, metavar='N',
+                    help='learning rate.')
 
 args = parser.parse_args()
 
@@ -100,7 +102,7 @@ with open(os.path.join(dir_name, 'command.sh'), 'w') as f:
     f.write('python '+' '.join(sys.argv))
     f.write('\n')
 
-assert args.dataset in ["CIFAR10"]
+assert args.dataset in ["CIFAR10", "MNIST"]
 print('Loading dataset {} from {}'.format(args.dataset, args.data_path))
 
 if args.dataset=="CIFAR10":
@@ -110,6 +112,23 @@ if args.dataset=="CIFAR10":
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
+    ])
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+    ])
+    train_set = ds(path, train=True, download=True, transform=transform_train)
+    val_set = ds(path, train=True, download=True, transform=transform_test)
+    test_set = ds(path, train=False, download=True, transform=transform_test)
+    train_sampler = None
+    val_sampler = None
+    num_classes = 10
+
+elif args.dataset=="MNIST":
+    ds = getattr(datasets, args.dataset)
+    path = os.path.join(args.data_path, args.dataset.lower())
+    transform_train = transforms.Compose([
+        transforms.Grayscale(),
+        transforms.ToTensor()
     ])
     transform_test = transforms.Compose([
         transforms.ToTensor(),
@@ -173,11 +192,14 @@ criterion = utils.SSE
 
 def schedule(epoch):
     if epoch < 200:
-        return 8.0
+        #return 8.0
+        return args.lr
     elif epoch < 250:
-        return 1
+        #return 1
+        return args.lr/8.0
     else:
-        return 1/8.
+        #return 1/8.
+        return args.lr/84.0
 
 start_epoch = 0
 

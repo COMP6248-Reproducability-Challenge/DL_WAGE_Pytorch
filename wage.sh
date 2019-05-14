@@ -13,4 +13,5 @@ python train.py \
 	--wl-error 8 \
 	--wl-rand 16 \
 	--seed "${1}00" \
-	--batch_size 128;
+	--batch_size 128 \
+	--lr 8
