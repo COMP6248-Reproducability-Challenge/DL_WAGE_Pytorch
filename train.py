@@ -102,7 +102,7 @@ with open(os.path.join(dir_name, 'command.sh'), 'w') as f:
     f.write('python '+' '.join(sys.argv))
     f.write('\n')
 
-assert args.dataset in ["CIFAR10", "MNIST"]
+assert args.dataset in ["CIFAR10", "MNIST", "SVHN"]
 print('Loading dataset {} from {}'.format(args.dataset, args.data_path))
 
 if args.dataset=="CIFAR10":
@@ -140,6 +140,23 @@ elif args.dataset=="MNIST":
     val_sampler = None
     num_classes = 10
 
+elif args.dataset=="SVHN":
+    ds = getattr(datasets, args.dataset)
+    path = os.path.join(args.data_path, args.dataset.lower())
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.ToTensor(),
+    ])
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+    ])
+    train_set = ds(path, split='train', download=True, transform=transform_train)
+    val_set = ds(path, split='train', download=True, transform=transform_test)
+    test_set = ds(path, split='test', download=True, transform=transform_test)
+    train_sampler = None
+    val_sampler = None
+    num_classes = 10
+
 loaders = {
     'train': torch.utils.data.DataLoader(
         train_set,
@@ -150,7 +167,7 @@ loaders = {
         pin_memory=True
     ),
     'val': torch.utils.data.DataLoader(
-        train_set,
+        val_set,
         batch_size=args.batch_size,
         sampler=val_sampler,
         num_workers=args.num_workers,
@@ -191,15 +208,17 @@ for name, param_acc in model.weight_acc.items():
 criterion = utils.SSE
 
 def schedule(epoch):
-    if epoch < 200:
+    #if epoch < 200:
         #return 8.0
+    if epoch < (args.epochs * 2/3):
         return args.lr
-    elif epoch < 250:
+    #elif epoch < 250:
         #return 1
+    elif epoch < (args.epochs * 5/6):
         return args.lr/8.0
     else:
         #return 1/8.
-        return args.lr/84.0
+        return args.lr/64.0
 
 start_epoch = 0
 
