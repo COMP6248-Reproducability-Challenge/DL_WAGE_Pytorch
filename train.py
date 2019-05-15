@@ -52,7 +52,7 @@ parser.add_argument('--fl-error', type=int, default=-1, metavar='N',
                     help='float length in bits for backward error; -1 if full precision.')
 parser.add_argument('--wl-rand', type=int, default=-1, metavar='N',
                     help='word length in bits for rand number; -1 if full precision.')
-parser.add_argument('--lr', type=int, default=-1, metavar='N',
+parser.add_argument('--lr', type=float, default=-1, metavar='N',
                     help='learning rate.')
 
 args = parser.parse_args()
@@ -208,9 +208,11 @@ for name, param_acc in model.weight_acc.items():
 criterion = utils.SSE
 
 def schedule(epoch):
+    if args.dataset=="MNIST":
+        return args.lr 
     #if epoch < 200:
         #return 8.0
-    if epoch < (args.epochs * 2/3):
+    elif epoch < (args.epochs * 2/3):
         return args.lr
     #elif epoch < 250:
         #return 1
