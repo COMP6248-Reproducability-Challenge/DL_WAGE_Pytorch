@@ -21,21 +21,21 @@ def scale_limit(limit, bits_W, name, scale_dict):
     return limit
 
 def wage_init_(tensor, bits_W, name, scale_dict, factor=2.0, mode="fan_in"):
-    # if mode != "fan_in":
-    #     raise NotImplementedError("support only wage normal")
+    if mode != "fan_in":
+        raise NotImplementedError("support only wage normal")
 
-    # dimensions = tensor.ndimension()
-    # if dimensions < 2: raise ValueError("tensor at least is 2d")
-    # elif dimensions == 2: fan_in = tensor.size(1)
-    # elif dimensions > 2:
-    #     num_input_fmaps = tensor.size(1)
-    #     receptive_field_size = 1
-    #     if tensor.dim() > 2:
-    #         receptive_field_size = tensor[0][0].numel()
-    #     fan_in = num_input_fmaps * receptive_field_size
-    # # This is a magic number, copied
-    # float_limit = math.sqrt(3 * factor / fan_in)
-    # quant_limit = scale_limit(float_limit, bits_W, name, scale_dict)
-    tensor.data.uniform_(-10, 10)
-    # print("name {}, fan_in {}, float_limit {}, quant limit {}".format(name, fan_in, float_limit, quant_limit))
+    dimensions = tensor.ndimension()
+    if dimensions < 2: raise ValueError("tensor at least is 2d")
+    elif dimensions == 2: fan_in = tensor.size(1)
+    elif dimensions > 2:
+        num_input_fmaps = tensor.size(1)
+        receptive_field_size = 1
+        if tensor.dim() > 2:
+            receptive_field_size = tensor[0][0].numel()
+        fan_in = num_input_fmaps * receptive_field_size
+    # This is a magic number, copied
+    float_limit = math.sqrt(3 * factor / fan_in)
+    quant_limit = scale_limit(float_limit, bits_W, name, scale_dict)
+    tensor.data.uniform_(-quant_limit, quant_limit)
+    print("name {}, fan_in {}, float_limit {}, quant limit {}".format(name, fan_in, float_limit, quant_limit))
     #import pdb; pdb.set_trace()

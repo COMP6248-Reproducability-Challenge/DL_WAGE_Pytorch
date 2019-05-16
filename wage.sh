@@ -14,4 +14,4 @@ python train.py \
 	--wl-rand 16 \
 	--seed "${1}00" \
 	--batch_size 128 \
-	--lr 0.1
+	--lr 8
