@@ -205,7 +205,7 @@ model.cuda()
 for name, param_acc in model.weight_acc.items():
     model.weight_acc[name] = param_acc.cuda()
 
-criterion = utils.SSE
+#criterion = utils.SSE
 
 def schedule(epoch):
     if args.dataset=="MNIST":
@@ -217,10 +217,10 @@ def schedule(epoch):
     #elif epoch < 250:
         #return 1
     elif epoch < (args.epochs * 5/6):
-        return args.lr/8.0
+        return args.lr/10.0
     else:
         #return 1/8.
-        return args.lr/64.0
+        return args.lr/100.0
 
 start_epoch = 0
 
@@ -236,6 +236,9 @@ def log_result(writer, name, res, step):
 for epoch in range(start_epoch, args.epochs):
     time_ep = time.time()
     lr = schedule(epoch)
+
+    criterion = torch.optim.SGD(loaders['train'], lr = lr, momentum=0.9, weight_decay=0.0001)
+
     writer.add_scalar("lr", lr, epoch)
     grad_quantizer = lambda x : models.QG(x, args.wl_grad, args.wl_rand, lr)
 
