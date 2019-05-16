@@ -10,13 +10,15 @@ def SSE(logits, label):
 
 def train_epoch(loader, model, criterion, weight_quantizer, grad_quantizer,
                 writer, epoch, quant_bias=True, quant_bn=True, log_error=False,
-                wage_quantize=False, wage_grad_clip=None):
+                wage_quantize=False, wage_grad_clip=None, lr = 1):
     loss_sum = 0.0
     correct = 0.0
     semi_correct = 0.0
 
     model.train()
     ttl = 0
+
+    optimizer = torch.optim.SGD(model.parameters(), lr = lr, momentum=0.9, weight_decay=0.0001)
 
     for i, (input_v, target) in enumerate(loader):
         step = i+epoch*len(loader)
@@ -40,6 +42,7 @@ def train_epoch(loader, model, criterion, weight_quantizer, grad_quantizer,
                 writer.add_histogram(
                     "param-quant/%s"%name, param.clone().cpu().data.numpy(), step)
 
+        optimizer.zero_grad()
         output = model(input_var)
         loss = criterion(output, target_var)
 
@@ -47,8 +50,10 @@ def train_epoch(loader, model, criterion, weight_quantizer, grad_quantizer,
             writer.add_scalar( "batch-train-loss", loss.item(), step)
             writer.add_histogram("output", output.cpu().data.numpy(), step)
 
-        model.zero_grad()
+        #model.zero_grad()
         loss.backward()
+
+        optimizer.step()
 
         # Write high precision gradient
         if log_error:

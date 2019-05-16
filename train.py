@@ -205,7 +205,8 @@ model.cuda()
 for name, param_acc in model.weight_acc.items():
     model.weight_acc[name] = param_acc.cuda()
 
-criterion = utils.SSE
+#criterion = utils.SSE
+criterion = torch.nn.CrossEntropyLoss()
 
 def schedule(epoch):
     if args.dataset=="MNIST":
@@ -217,10 +218,10 @@ def schedule(epoch):
     #elif epoch < 250:
         #return 1
     elif epoch < (args.epochs * 5/6):
-        return args.lr/8.0
+        return args.lr/10.0
     else:
         #return 1/8.
-        return args.lr/64.0
+        return args.lr/100.0
 
 start_epoch = 0
 
@@ -244,7 +245,8 @@ for epoch in range(start_epoch, args.epochs):
             weight_quantizer, grad_quantizer, writer, epoch,
             log_error=args.log_error,
             wage_quantize=True,
-            wage_grad_clip=grad_clip
+            wage_grad_clip=grad_clip,
+            lr = lr
     )
     log_result(writer, "train", train_res, epoch+1)
 

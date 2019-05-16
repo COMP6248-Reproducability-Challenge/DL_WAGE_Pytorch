@@ -39,18 +39,24 @@ def QW(x, bits, scale=1.0):
     return y
 
 def QE(x, bits):
-    max_entry = x.abs().max()
-    assert max_entry != 0, "QE blow"
-    x /= shift(max_entry)
-    return Q(C(x, bits), bits)
+    if bits > 15:
+        return x
+    else:
+        max_entry = x.abs().max()
+        assert max_entry != 0, "QE blow"
+        x /= shift(max_entry)
+        return Q(C(x, bits), bits)
 
 def QG(x, bits_G, bits_R, lr):
-    max_entry = x.abs().max()
-    assert max_entry != 0, "QG blow"
-    x /= shift(max_entry)
-    norm = lr * x
-    norm = SR(norm)
-    return norm / S(bits_G)
+    if bits_G > 15:
+        return x
+    else:
+        max_entry = x.abs().max()
+        assert max_entry != 0, "QG blow"
+        x /= shift(max_entry)
+        norm = lr * x
+        norm = SR(norm)
+        return norm / S(bits_G)
 
 class WAGERounding(Function):
     @staticmethod
