@@ -22,30 +22,36 @@ class VGG(nn.Module):
 
             # Group 1
             nn.Conv2d(3, 128, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
             quant("feature-1-1"),
 
             nn.Conv2d(128, 128, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(128),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.ReLU(inplace=True),
             quant("feature-1-2"),
 
             # Group 2
             nn.Conv2d(128, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
             quant("feature-2-1"),
 
             nn.Conv2d(256, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.ReLU(inplace=True),
             quant("feature-2-2"),
 
             # Group 3
             nn.Conv2d(256, 512, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(512),
             nn.ReLU(inplace=True),
             quant("feature-3-1"),
 
             nn.Conv2d(512, 512, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(512),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.ReLU(inplace=True),
             quant("feature-3-2")
@@ -53,6 +59,7 @@ class VGG(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Linear(8192, 1024, bias=False),
+            nn.BatchNorm1d(1024),
             nn.ReLU(inplace=True),
             quant("classifier-lin"),
             nn.Linear(1024, num_classes, bias=False),
@@ -62,9 +69,10 @@ class VGG(nn.Module):
         self.weight_scale = {}
         self.weight_acc = {}
         for name, param in self.named_parameters():
-            assert 'weight' in name
-            wage_init_(param, wl_weight, name, self.weight_scale, factor=1.0)
+            #assert 'weight' in name
+            #wage_init_(param, wl_weight, name, self.weight_scale, factor=1.0)
             self.weight_acc[name] = Q(param.data, wl_weight)
+            self.weight_scale[name] = 1
 
     def forward(self, x):
         x = self.features(x)

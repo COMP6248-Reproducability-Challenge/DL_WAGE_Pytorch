@@ -7,9 +7,9 @@ python train.py \
 	--data_path ./data \
 	--model VGG7LP \
 	--epochs=300 \
-	--wl-weight 2 \
+	--wl-weight 16 \
 	--wl-grad 16 \
-	--wl-activate 8 \
+	--wl-activate 16 \
 	--wl-error 16 \
 	--wl-rand 16 \
 	--seed "${1}00" \
