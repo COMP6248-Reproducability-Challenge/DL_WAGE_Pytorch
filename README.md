@@ -19,10 +19,11 @@ Start training using the following scripts:
 ```bash
 ./wage.sh
 ```
+The dataset can be set to MNIST, SVHN or CIFAR10.
+The model can be set to either VGG7LP or LENET5.
+Other parameters such as bitwidth, epochs, learning rate and batch size can also be set through this file.
 
-## Results 
-
-Averaging four seeds gives: 93.04% accuracy at 300 epochs.
+Switching to the Vanilla-Vgg branch can test the vanilla CNN on CIFAR10, while the test-28ff branch can test the 28ff architecture. However, these two branches are still under development.
 
 
 ## Citation
